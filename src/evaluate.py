@@ -1,8 +1,12 @@
 import torch
+import sys
+import os
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from dataset import LoRaDataset
 from models.probabilistic import ProbabilisticMultiTaskResNet, enable_dropout
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from config import MC_DROPOUT_PASSES, UNCERTAINTY_THRESHOLD
 
 def test_mc_dropout():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -18,8 +22,8 @@ def test_mc_dropout():
     model.eval()
     enable_dropout(model) 
     
-    T = 10 
-    uncertainty_threshold = 0.05
+    T = MC_DROPOUT_PASSES
+    uncertainty_threshold = UNCERTAINTY_THRESHOLD
 
     for x, y_dev, y_rogue in test_loader:
         x = x.to(device)

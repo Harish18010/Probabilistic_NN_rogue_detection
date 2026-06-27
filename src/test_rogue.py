@@ -4,32 +4,36 @@ from torch.utils.data import DataLoader
 from dataset import LoRaDataset
 from models.probabilistic import ProbabilisticMultiTaskResNet, enable_dropout
 import os
+import sys
+
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from config import MC_DROPOUT_PASSES, UNCERTAINTY_THRESHOLD
 
 def test_rogue_signals():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"--- INITATING ROGUE SIGNAL TEST ON {str(device).upper()} ---")
+    print(f"--- INITIATING ROGUE SIGNAL TEST ON {str(device).upper()} ---")
     
-  
     rogue_file_path = r'data\raw\Test\dataset_rogue.h5'
     
     if not os.path.exists(rogue_file_path):
         print(f"Error: Could not find {rogue_file_path}. Please check your folder path!")
         return
 
-   
-    rogue_dataset = LoRaDataset(rogue_file_path, subset_size=10)
+    
+    rogue_dataset = LoRaDataset(rogue_file_path, subset_size=10, is_rogue_dataset=True)
     rogue_loader = DataLoader(rogue_dataset, batch_size=10, shuffle=True)
     
-    
     model = ProbabilisticMultiTaskResNet(num_devices=30).to(device)
-    model.load_state_dict(torch.load("lora_model.pth", map_location=device, weights_only=True))
+    
+    model.load_state_dict(torch.load("lora_model_drop30.pth", map_location=device, weights_only=True))
     
     model.eval()
     enable_dropout(model) 
     
-    T = 10 
-   
-    uncertainty_threshold = 0.05 
+    
+    T = MC_DROPOUT_PASSES 
+    uncertainty_threshold = UNCERTAINTY_THRESHOLD 
 
     for x, y_dev, _ in rogue_loader:
         x = x.to(device)
@@ -52,9 +56,9 @@ def test_rogue_signals():
             var = max_variance[i].item()
             
             if var > uncertainty_threshold:
-                status = f"🛑 SECURITY ALERT: High Uncertainty (Spoof Detected!)"
+                status = f"SECURITY ALERT: High Uncertainty (Spoof Detected!)"
             else:
-                status = "✅ Legitimate Signal"
+                status = "Legitimate Signal"
                 
             print(f"Rogue Sample {i+1} | Variance: {var:.6f} | {status}")
             

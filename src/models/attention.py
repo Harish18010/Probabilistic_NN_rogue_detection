@@ -18,6 +18,8 @@ class SelfAttention(nn.Module):
         k = self.key(x).view(batch_size, -1, width * height)
         
         energy = torch.bmm(q, k)
+       
+        energy = energy / (k.size(-1) ** 0.5) 
         attention = F.softmax(energy, dim=-1)
         
         v = self.value(x).view(batch_size, -1, width * height)
