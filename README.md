@@ -101,6 +101,4 @@ Classification accuracy is not a reliable objective for open-set security. Geome
 
 This project is done for educational purposes.
 
-[1] G. Shen, J. Zhang, A. Marshall, and J. R. Cavallaro, "Towards scalable and channel-robust radio frequency fingerprint identification for LoRa," IEEE Trans. Inf. Forensics Security, vol. 17, pp. 774-787, 2022.
 
-[2] Y. E. Sagduyu and T. Erpek, "Adversarial attack and defense for LoRa device identification and authentication via deep learning," 2024.
